@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: inventario-db-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: inventario
+      POSTGRES_USER: inventario
+      POSTGRES_PASSWORD: inventario
+    ports:
+      - "5433:5432"
+    volumes:
+      - inventario_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U inventario -d inventario"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  inventario_postgres_data:

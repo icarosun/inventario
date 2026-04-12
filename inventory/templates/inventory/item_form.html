@@ -1,0 +1,15 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}Item - Inventario{% endblock %}
+
+{% block content %}
+  <h1>{% if object %}Editar item{% else %}Novo item{% endif %}</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="actions">
+      <button type="submit">Salvar</button>
+      <a class="button secondary" href="{% if object %}{% url 'inventory:item_detail' object.pk %}{% else %}{% url 'inventory:item_list' %}{% endif %}">Cancelar</a>
+    </div>
+  </form>
+{% endblock %}

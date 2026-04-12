@@ -1,0 +1,37 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}{{ item.name }} - Inventario{% endblock %}
+
+{% block content %}
+  <h1>{{ item.name }}</h1>
+  <div class="actions">
+    <a class="button secondary" href="{% url 'inventory:item_list' %}">Voltar</a>
+    <a class="button" href="{% url 'inventory:item_update' item.pk %}">Editar</a>
+    <a class="button" href="{% url 'inventory:item_image_create' item.pk %}">Adicionar imagem</a>
+    {% if request.user.is_staff %}
+      <a class="button danger" href="{% url 'inventory:item_delete' item.pk %}">Excluir</a>
+    {% endif %}
+  </div>
+  <dl>
+    <dt>Categoria</dt><dd>{{ item.get_category_display }}</dd>
+    <dt>Status</dt><dd>{{ item.get_status_display }}</dd>
+    <dt>Local</dt><dd>{{ item.location|default:"-" }}</dd>
+    <dt>Responsavel</dt><dd>{{ item.responsible_person|default:"-" }}</dd>
+    <dt>Tombo 1</dt><dd>{{ item.tombo_1|default:"-" }}</dd>
+    <dt>Tombo 2</dt><dd>{{ item.tombo_2|default:"-" }}</dd>
+    <dt>Tombo 3</dt><dd>{{ item.tombo_3|default:"-" }}</dd>
+    <dt>Descricao</dt><dd>{{ item.description|linebreaksbr|default:"-" }}</dd>
+    <dt>Especificacoes</dt><dd><pre>{{ item.specs }}</pre></dd>
+  </dl>
+  <h2>Imagens</h2>
+  <div class="grid">
+    {% for image in item.images.all %}
+      <figure>
+        <img class="photo" src="{{ image.image.url }}" alt="{{ image.caption|default:item.name }}">
+        <figcaption>{{ image.caption }}</figcaption>
+      </figure>
+    {% empty %}
+      <p>Nenhuma imagem cadastrada.</p>
+    {% endfor %}
+  </div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}Imagem - Inventario{% endblock %}
+
+{% block content %}
+  <h1>Adicionar imagem</h1>
+  <p>{{ item.name }}</p>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="actions">
+      <button type="submit">Salvar</button>
+      <a class="button secondary" href="{% url 'inventory:item_detail' item.pk %}">Cancelar</a>
+    </div>
+  </form>
+{% endblock %}
