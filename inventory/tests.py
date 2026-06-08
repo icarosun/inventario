@@ -316,3 +316,58 @@ class InventoryAuditTests(TestCase):
         self.assertEqual(movement.previous_responsible_person, "Maria")
         detail = self.client.get(reverse("inventory:item_detail", args=[self.item.pk]))
         self.assertContains(detail, "Mudanca de responsavel")
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class NotFoundAuditCycleTests(TestCase):
+    def setUp(self):
+        self.staff = get_user_model().objects.create_user(
+            username="gestor-nao-localizado",
+            password="senha-forte-123",
+            is_staff=True,
+        )
+        self.item = InventoryItem.objects.create(
+            name="Equipamento nao localizado",
+            category=InventoryItem.Category.TI,
+            status=InventoryItem.Status.ACTIVE,
+            created_by=self.staff,
+            updated_by=self.staff,
+        )
+        self.client.login(username="gestor-nao-localizado", password="senha-forte-123")
+
+    def open_audit(self, name):
+        self.client.post(
+            reverse("inventory:audit_create"),
+            {"name": name, "deadline": "2027-12-31"},
+        )
+        return InventoryAudit.objects.get(name=name)
+
+    def test_not_found_item_is_closed_and_included_in_next_audit(self):
+        first_audit = self.open_audit("Primeira auditoria")
+        record = first_audit.audit_items.get(item=self.item)
+        self.client.post(
+            reverse("inventory:audit_verify", args=[record.pk]),
+            {
+                "located": "False",
+                "condition": InventoryAuditItem.Condition.INOPERATIVE,
+                "found_responsible_person": "",
+                "observation": "Equipamento nao encontrado no setor.",
+            },
+        )
+        response = self.client.post(
+            reverse("inventory:audit_review", args=[record.pk]),
+            {"applied_status": InventoryItem.Status.NOT_FOUND},
+        )
+        self.assertRedirects(response, reverse("inventory:audit_detail", args=[first_audit.pk]))
+        self.item.refresh_from_db()
+        record.refresh_from_db()
+        self.assertEqual(self.item.status, InventoryItem.Status.NOT_FOUND)
+        self.assertTrue(record.reviewed)
+        self.assertIsNone(record.movement)
+
+        self.client.post(reverse("inventory:audit_close", args=[first_audit.pk]))
+        first_audit.refresh_from_db()
+        self.assertEqual(first_audit.status, InventoryAudit.Status.CLOSED)
+
+        second_audit = self.open_audit("Segunda auditoria")
+        self.assertTrue(second_audit.audit_items.filter(item=self.item).exists())

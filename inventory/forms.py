@@ -120,9 +120,15 @@ class InventoryAuditReviewForm(forms.ModelForm):
             or cleaned_data.get("apply_responsible_person")
             or cleaned_data.get("applied_status")
         )
-        if applies_change and not cleaned_data.get("movement_photo"):
+        marks_not_found_only = (
+            self.instance.located is False
+            and cleaned_data.get("applied_status") == InventoryItem.Status.NOT_FOUND
+            and not cleaned_data.get("apply_department")
+            and not cleaned_data.get("apply_responsible_person")
+        )
+        if applies_change and not marks_not_found_only and not cleaned_data.get("movement_photo"):
             self.add_error("movement_photo", "A foto e obrigatoria ao atualizar o inventario.")
-        if applies_change and not cleaned_data.get("delivery_caution_document"):
+        if applies_change and not marks_not_found_only and not cleaned_data.get("delivery_caution_document"):
             self.add_error("delivery_caution_document", "A cautela de entrega e obrigatoria ao atualizar o inventario.")
         return cleaned_data
 

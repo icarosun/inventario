@@ -26,6 +26,7 @@ class InventoryItem(models.Model):
         MAINTENANCE = "MAINTENANCE", "Manutencao"
         STORED = "STORED", "Em estoque"
         RETIRED = "RETIRED", "Baixado"
+        NOT_FOUND = "NOT_FOUND", "Nao localizado"
 
     name = models.CharField("nome", max_length=150)
     category = models.CharField("categoria", max_length=20, choices=Category.choices)

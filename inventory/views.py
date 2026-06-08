@@ -205,7 +205,9 @@ class AuditCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
             with transaction.atomic():
                 form.instance.opened_by = self.request.user
                 response = super().form_valid(form)
-                items = InventoryItem.objects.filter(status=InventoryItem.Status.ACTIVE).select_related("department")
+                items = InventoryItem.objects.filter(
+                    status__in=[InventoryItem.Status.ACTIVE, InventoryItem.Status.NOT_FOUND]
+                ).select_related("department")
                 InventoryAuditItem.objects.bulk_create(
                     [
                         InventoryAuditItem(
@@ -286,8 +288,18 @@ class AuditReviewView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
             or form.cleaned_data["apply_responsible_person"]
             or form.cleaned_data["applied_status"]
         )
+        marks_not_found_only = (
+            record.located is False
+            and form.cleaned_data["applied_status"] == InventoryItem.Status.NOT_FOUND
+            and not form.cleaned_data["apply_department"]
+            and not form.cleaned_data["apply_responsible_person"]
+        )
         with transaction.atomic():
-            if applies_change:
+            if marks_not_found_only:
+                item.status = InventoryItem.Status.NOT_FOUND
+                item.updated_by = self.request.user
+                item.save(update_fields=["status", "updated_by"])
+            elif applies_change:
                 record.movement = create_item_movement(
                     item=item,
                     user=self.request.user,
