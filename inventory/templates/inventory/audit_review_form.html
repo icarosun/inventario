@@ -1,0 +1,10 @@
+{% extends "inventory/base.html" %}
+{% block title %}Revisar divergencia{% endblock %}
+{% block content %}
+  <h1>Revisar {{ record.snapshot_name }}</h1>
+  <p>Departamento: {{ record.snapshot_department|default:"-" }} &rarr; {{ record.found_department|default:"-" }}</p>
+  <p>Responsavel: {{ record.snapshot_responsible_person|default:"-" }} &rarr; {{ record.found_responsible_person|default:"-" }}</p>
+  <p>Condicao: {{ record.get_condition_display }} | Localizado: {{ record.located|yesno:"Sim,Nao" }}</p>
+  <p>{{ record.observation }}</p>
+  <form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.as_p }}<div class="actions"><button type="submit">Concluir revisao</button><a class="button secondary" href="{% url 'inventory:audit_detail' record.audit_id %}">Cancelar</a></div></form>
+{% endblock %}

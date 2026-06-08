@@ -1,0 +1,10 @@
+{% extends "inventory/base.html" %}
+{% block title %}Auditorias - Inventario{% endblock %}
+{% block content %}
+  <h1>Auditorias</h1>
+  {% if request.user.is_staff %}<div class="actions"><a class="button" href="{% url 'inventory:audit_create' %}">Abrir auditoria</a></div>{% endif %}
+  <table><thead><tr><th>Nome</th><th>Status</th><th>Prazo</th><th>Aberta em</th><th>Aberta por</th></tr></thead><tbody>
+    {% for audit in audits %}<tr><td><a href="{% url 'inventory:audit_detail' audit.pk %}">{{ audit.name }}</a></td><td>{{ audit.get_status_display }}{% if audit.is_overdue %} <span class="danger-text">Atrasada</span>{% endif %}</td><td>{{ audit.deadline }}</td><td>{{ audit.opened_at }}</td><td>{{ audit.opened_by }}</td></tr>
+    {% empty %}<tr><td colspan="5">Nenhuma auditoria cadastrada.</td></tr>{% endfor %}
+  </tbody></table>
+{% endblock %}

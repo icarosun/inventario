@@ -2,7 +2,14 @@ import json
 
 from django import forms
 
-from .models import Department, InventoryImage, InventoryItem
+from .models import (
+    Department,
+    InventoryItemMovement,
+    InventoryAudit,
+    InventoryAuditItem,
+    InventoryImage,
+    InventoryItem,
+)
 
 
 class DepartmentForm(forms.ModelForm):
@@ -61,3 +68,85 @@ class InventoryImageForm(forms.ModelForm):
     class Meta:
         model = InventoryImage
         fields = ["image", "caption"]
+
+
+class InventoryAuditForm(forms.ModelForm):
+    class Meta:
+        model = InventoryAudit
+        fields = ["name", "deadline"]
+        widgets = {"deadline": forms.DateInput(attrs={"type": "date"})}
+
+
+class InventoryAuditVerificationForm(forms.ModelForm):
+    class Meta:
+        model = InventoryAuditItem
+        fields = [
+            "located",
+            "condition",
+            "found_department",
+            "found_responsible_person",
+            "observation",
+            "evidence_image",
+        ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get("located") is None:
+            self.add_error("located", "Informe se o equipamento foi localizado.")
+        if not cleaned_data.get("condition"):
+            self.add_error("condition", "Informe a condicao do equipamento.")
+        return cleaned_data
+
+
+class InventoryAuditReviewForm(forms.ModelForm):
+    class Meta:
+        model = InventoryAuditItem
+        fields = []
+    apply_department = forms.BooleanField(label="Aplicar departamento encontrado", required=False)
+    apply_responsible_person = forms.BooleanField(label="Aplicar responsavel encontrado", required=False)
+    applied_status = forms.ChoiceField(
+        label="Novo status oficial",
+        choices=[("", "Manter status atual"), *InventoryItem.Status.choices],
+        required=False,
+    )
+    movement_photo = forms.ImageField(label="Foto da movimentacao", required=False)
+    return_caution_document = forms.FileField(label="Cautela de devolucao", required=False)
+    delivery_caution_document = forms.FileField(label="Cautela de entrega", required=False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        applies_change = (
+            cleaned_data.get("apply_department")
+            or cleaned_data.get("apply_responsible_person")
+            or cleaned_data.get("applied_status")
+        )
+        if applies_change and not cleaned_data.get("movement_photo"):
+            self.add_error("movement_photo", "A foto e obrigatoria ao atualizar o inventario.")
+        if applies_change and not cleaned_data.get("delivery_caution_document"):
+            self.add_error("delivery_caution_document", "A cautela de entrega e obrigatoria ao atualizar o inventario.")
+        return cleaned_data
+
+
+class InventoryItemUpdateForm(InventoryItemForm):
+    class Meta(InventoryItemForm.Meta):
+        fields = [
+            "name",
+            "category",
+            "description",
+            "immediate_supervisor",
+            "tombo_1",
+            "tombo_2",
+            "tombo_3",
+            "specs",
+        ]
+
+
+class InventoryItemMovementForm(forms.Form):
+    department = forms.ModelChoiceField(label="Novo departamento", queryset=Department.objects.all(), required=False)
+    responsible_person = forms.CharField(label="Novo responsavel", max_length=150, required=False)
+    status = forms.ChoiceField(label="Novo status", choices=InventoryItem.Status.choices)
+    reason = forms.CharField(label="Motivo", max_length=200)
+    observation = forms.CharField(label="Observacao", widget=forms.Textarea, required=False)
+    photo = forms.ImageField(label="Foto da movimentacao")
+    return_caution_document = forms.FileField(label="Cautela de devolucao", required=False)
+    delivery_caution_document = forms.FileField(label="Cautela de entrega")

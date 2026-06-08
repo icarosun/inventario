@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Department, InventoryImage, InventoryItem
+from .models import Department, InventoryAudit, InventoryAuditItem, InventoryImage, InventoryItem, InventoryItemMovement
 
 
 @admin.register(Department)
@@ -51,3 +51,24 @@ class InventoryItemAdmin(admin.ModelAdmin):
 class InventoryImageAdmin(admin.ModelAdmin):
     list_display = ("item", "caption", "uploaded_at")
     search_fields = ("item__name", "caption")
+
+
+@admin.register(InventoryAudit)
+class InventoryAuditAdmin(admin.ModelAdmin):
+    list_display = ("name", "status", "deadline", "opened_by", "opened_at", "closed_at")
+    list_filter = ("status",)
+    readonly_fields = ("opened_at", "closed_at")
+
+
+@admin.register(InventoryAuditItem)
+class InventoryAuditItemAdmin(admin.ModelAdmin):
+    list_display = ("audit", "snapshot_name", "located", "condition", "verified_by", "reviewed")
+    list_filter = ("audit", "located", "condition", "reviewed")
+    search_fields = ("snapshot_name", "snapshot_tombo_1", "snapshot_tombo_2", "snapshot_tombo_3")
+
+
+@admin.register(InventoryItemMovement)
+class InventoryItemMovementAdmin(admin.ModelAdmin):
+    list_display = ("item", "reason", "moved_by", "moved_at")
+    search_fields = ("item__name", "reason", "observation")
+    list_filter = ("new_status", "moved_at")

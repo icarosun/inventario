@@ -25,6 +25,10 @@
     .messages li { background: #dcfce7; border: 1px solid #86efac; padding: 10px; border-radius: 6px; margin-bottom: 8px; }
     .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
     .photo { max-width: 220px; border-radius: 6px; border: 1px solid #e5e7eb; }
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 16px 0; }
+    .summary div { background: white; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px; }
+    .warning { color: #b45309; font-weight: 700; }
+    .danger-text { color: #b91c1c; font-weight: 700; }
   </style>
 </head>
 <body>
@@ -34,6 +38,7 @@
       {% if request.user.is_authenticated %}
         <a href="{% url 'inventory:item_list' %}" style="color:white; margin-right:12px">Itens</a>
         <a href="{% url 'inventory:department_list' %}" style="color:white; margin-right:12px">Departamentos</a>
+        <a href="{% url 'inventory:audit_list' %}" style="color:white; margin-right:12px">Auditorias</a>
         <span>{{ request.user.username }}</span>
         <form action="{% url 'logout' %}" method="post" style="display:inline">
           {% csrf_token %}

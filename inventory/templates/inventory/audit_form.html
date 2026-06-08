@@ -1,0 +1,6 @@
+{% extends "inventory/base.html" %}
+{% block title %}Abrir auditoria - Inventario{% endblock %}
+{% block content %}
+  <h1>Abrir auditoria</h1>
+  <form method="post">{% csrf_token %}{{ form.as_p }}<div class="actions"><button type="submit">Abrir auditoria</button><a class="button secondary" href="{% url 'inventory:audit_list' %}">Cancelar</a></div></form>
+{% endblock %}

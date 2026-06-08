@@ -1,0 +1,7 @@
+{% extends "inventory/base.html" %}
+{% block title %}Conferir equipamento{% endblock %}
+{% block content %}
+  <h1>Conferir {{ record.snapshot_name }}</h1>
+  <p>Registrado: {{ record.snapshot_department|default:"sem departamento" }} | {{ record.snapshot_responsible_person|default:"sem responsavel" }}</p>
+  <form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.as_p }}<div class="actions"><button type="submit">Salvar conferencia</button><a class="button secondary" href="{% url 'inventory:audit_detail' record.audit_id %}">Cancelar</a></div></form>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends "inventory/base.html" %}
+{% block title %}Movimentar item{% endblock %}
+{% block content %}
+  <h1>Movimentar {{ item.name }}</h1>
+  <p>Atual: {{ item.department|default:"sem departamento" }} | {{ item.responsible_person|default:"sem responsavel" }} | {{ item.get_status_display }}</p>
+  <form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.as_p }}<div class="actions"><button type="submit">Registrar movimentacao</button><a class="button secondary" href="{% url 'inventory:item_detail' item.pk %}">Cancelar</a></div></form>
+{% endblock %}

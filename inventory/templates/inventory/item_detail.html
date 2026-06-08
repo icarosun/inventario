@@ -8,6 +8,7 @@
     <a class="button secondary" href="{% url 'inventory:item_list' %}">Voltar</a>
     <a class="button" href="{% url 'inventory:item_update' item.pk %}">Editar</a>
     <a class="button" href="{% url 'inventory:item_image_create' item.pk %}">Adicionar imagem</a>
+    <a class="button" href="{% url 'inventory:item_move' item.pk %}">Movimentar</a>
     {% if request.user.is_staff %}
       <a class="button danger" href="{% url 'inventory:item_delete' item.pk %}">Excluir</a>
     {% endif %}
@@ -24,6 +25,28 @@
     <dt>Descricao</dt><dd>{{ item.description|linebreaksbr|default:"-" }}</dd>
     <dt>Especificacoes</dt><dd><pre>{{ item.specs }}</pre></dd>
   </dl>
+  <h2>Historico de movimentacoes</h2>
+  <table>
+    <thead><tr><th>Data</th><th>Motivo</th><th>Departamento</th><th>Responsavel</th><th>Status</th><th>Evidencias</th></tr></thead>
+    <tbody>
+      {% for movement in item.movements.all %}
+        <tr>
+          <td>{{ movement.moved_at }}</td><td>{{ movement.reason }}</td>
+          <td>{{ movement.previous_department|default:"-" }} &rarr; {{ movement.new_department|default:"-" }}</td>
+          <td>{{ movement.previous_responsible_person|default:"-" }} &rarr; {{ movement.new_responsible_person|default:"-" }}</td>
+          <td>{{ movement.get_previous_status_display }} &rarr; {{ movement.get_new_status_display }}</td>
+          <td><a href="{{ movement.photo.url }}">Foto</a> | {% if movement.return_caution_document %}<a href="{{ movement.return_caution_document.url }}">Cautela de devolucao</a> | {% endif %}<a href="{{ movement.delivery_caution_document.url }}">Cautela de entrega</a></td>
+        </tr>
+      {% empty %}<tr><td colspan="6">Nenhuma movimentacao registrada.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  <h2>Historico de auditorias</h2>
+  <table>
+    <thead><tr><th>Auditoria</th><th>Conferido em</th><th>Localizado</th><th>Condicao</th><th>Departamento encontrado</th><th>Responsavel encontrado</th></tr></thead>
+    <tbody>{% for record in item.audit_records.all %}<tr>
+      <td><a href="{% url 'inventory:audit_detail' record.audit_id %}">{{ record.audit }}</a></td><td>{{ record.verified_at|default:"Pendente" }}</td><td>{{ record.located|yesno:"Sim,Nao,Pendente" }}</td><td>{{ record.get_condition_display|default:"-" }}</td><td>{{ record.found_department|default:"-" }}</td><td>{{ record.found_responsible_person|default:"-" }}</td>
+    </tr>{% empty %}<tr><td colspan="6">Nenhuma auditoria registrada.</td></tr>{% endfor %}</tbody>
+  </table>
   <h2>Imagens</h2>
   <div class="grid">
     {% for image in item.images.all %}
