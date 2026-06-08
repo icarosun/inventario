@@ -10,12 +10,13 @@
   </div>
   <form method="get">
     <label for="q">Buscar</label>
-    <input id="q" name="q" value="{{ request.GET.q }}" placeholder="Nome do departamento">
+    <input id="q" name="q" value="{{ request.GET.q }}" placeholder="Nome ou sigla do departamento">
   </form>
   <table>
     <thead>
       <tr>
         <th>Nome</th>
+        <th>Sigla</th>
         <th>Acoes</th>
       </tr>
     </thead>
@@ -23,13 +24,14 @@
       {% for department in departments %}
         <tr>
           <td>{{ department.name }}</td>
+          <td>{{ department.acronym }}</td>
           <td>
             <a href="{% url 'inventory:department_update' department.pk %}">Editar</a>
             <a href="{% url 'inventory:department_delete' department.pk %}">Excluir</a>
           </td>
         </tr>
       {% empty %}
-        <tr><td colspan="2">Nenhum departamento cadastrado.</td></tr>
+        <tr><td colspan="3">Nenhum departamento cadastrado.</td></tr>
       {% endfor %}
     </tbody>
   </table>

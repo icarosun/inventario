@@ -4,6 +4,7 @@ from django.db import models
 
 class Department(models.Model):
     name = models.CharField("nome", max_length=150, unique=True)
+    acronym = models.CharField("sigla", max_length=20, unique=True)
 
     class Meta:
         ordering = ["name"]
@@ -11,7 +12,7 @@ class Department(models.Model):
         verbose_name_plural = "departamentos"
 
     def __str__(self):
-        return self.name
+        return f"{self.acronym} - {self.name}"
 
 
 class InventoryItem(models.Model):
@@ -46,7 +47,7 @@ class InventoryItem(models.Model):
     )
     tombo_1 = models.CharField("tombo 1", max_length=80, blank=True)
     tombo_2 = models.CharField("tombo 2", max_length=80, blank=True)
-    tombo_3 = models.CharField("tombo 3", max_length=80, blank=True)
+    tombo_3 = models.CharField("tombo 3 ou numero de serie", max_length=80, blank=True)
     specs = models.JSONField("especificacoes", blank=True, default=dict)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

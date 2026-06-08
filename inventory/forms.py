@@ -8,7 +8,7 @@ from .models import Department, InventoryImage, InventoryItem
 class DepartmentForm(forms.ModelForm):
     class Meta:
         model = Department
-        fields = ["name"]
+        fields = ["name", "acronym"]
 
 
 class InventoryItemForm(forms.ModelForm):

@@ -40,7 +40,7 @@ class InventoryViewsTests(TestCase):
         self.assertIn(reverse("login"), response["Location"])
 
     def test_authenticated_user_can_create_item_with_tombos_and_specs(self):
-        department = Department.objects.create(name="Sala TI")
+        department = Department.objects.create(name="Sala TI", acronym="STI")
         self.client.login(username="usuario", password="senha-forte-123")
         response = self.client.post(
             reverse("inventory:item_create"),
@@ -72,24 +72,31 @@ class InventoryViewsTests(TestCase):
         self.client.login(username="usuario", password="senha-forte-123")
         create_response = self.client.post(
             reverse("inventory:department_create"),
-            {"name": "Logistica"},
+            {"name": "Logistica", "acronym": "LOG"},
         )
         department = Department.objects.get(name="Logistica")
         self.assertRedirects(create_response, reverse("inventory:department_list"))
 
         update_response = self.client.post(
             reverse("inventory:department_update", args=[department.pk]),
-            {"name": "Almoxarifado"},
+            {"name": "Almoxarifado", "acronym": "ALM"},
         )
         self.assertRedirects(update_response, reverse("inventory:department_list"))
         department.refresh_from_db()
         self.assertEqual(department.name, "Almoxarifado")
+        self.assertEqual(department.acronym, "ALM")
 
         delete_response = self.client.post(
             reverse("inventory:department_delete", args=[department.pk]),
         )
         self.assertRedirects(delete_response, reverse("inventory:department_list"))
         self.assertFalse(Department.objects.filter(pk=department.pk).exists())
+
+    def test_item_detail_shows_serial_number_label(self):
+        item = self.create_item()
+        self.client.login(username="usuario", password="senha-forte-123")
+        response = self.client.get(reverse("inventory:item_detail", args=[item.pk]))
+        self.assertContains(response, "Tombo 3 ou numero de serie")
 
     def test_non_staff_user_cannot_delete_item(self):
         item = self.create_item()

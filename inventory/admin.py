@@ -5,8 +5,8 @@ from .models import Department, InventoryImage, InventoryItem
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
-    list_display = ("name",)
-    search_fields = ("name",)
+    list_display = ("name", "acronym")
+    search_fields = ("name", "acronym")
 
 
 class InventoryImageInline(admin.TabularInline):

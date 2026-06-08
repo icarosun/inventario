@@ -25,7 +25,9 @@ class ItemListView(LoginRequiredMixin, ListView):
         search = self.request.GET.get("q")
         if search:
             queryset = queryset.filter(
-                Q(name__icontains=search) | Q(department__name__icontains=search)
+                Q(name__icontains=search)
+                | Q(department__name__icontains=search)
+                | Q(department__acronym__icontains=search)
             )
         return queryset
 
@@ -78,7 +80,9 @@ class DepartmentListView(LoginRequiredMixin, ListView):
         queryset = super().get_queryset()
         search = self.request.GET.get("q")
         if search:
-            queryset = queryset.filter(name__icontains=search)
+            queryset = queryset.filter(
+                Q(name__icontains=search) | Q(acronym__icontains=search)
+            )
         return queryset
 
 
