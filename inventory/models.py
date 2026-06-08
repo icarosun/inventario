@@ -2,6 +2,18 @@ from django.conf import settings
 from django.db import models
 
 
+class Department(models.Model):
+    name = models.CharField("nome", max_length=150, unique=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "departamento"
+        verbose_name_plural = "departamentos"
+
+    def __str__(self):
+        return self.name
+
+
 class InventoryItem(models.Model):
     class Category(models.TextChoices):
         TI = "TI", "TI"
@@ -16,8 +28,16 @@ class InventoryItem(models.Model):
     name = models.CharField("nome", max_length=150)
     category = models.CharField("categoria", max_length=20, choices=Category.choices)
     description = models.TextField("descricao", blank=True)
-    location = models.CharField("local", max_length=150, blank=True)
+    department = models.ForeignKey(
+        Department,
+        verbose_name="departamento",
+        related_name="items",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     responsible_person = models.CharField("responsavel", max_length=150, blank=True)
+    immediate_supervisor = models.CharField("chefe imediato", max_length=150, blank=True)
     status = models.CharField(
         "status",
         max_length=20,

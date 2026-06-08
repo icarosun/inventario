@@ -15,8 +15,9 @@
   <dl>
     <dt>Categoria</dt><dd>{{ item.get_category_display }}</dd>
     <dt>Status</dt><dd>{{ item.get_status_display }}</dd>
-    <dt>Local</dt><dd>{{ item.location|default:"-" }}</dd>
+    <dt>Departamento</dt><dd>{{ item.department|default:"-" }}</dd>
     <dt>Responsavel</dt><dd>{{ item.responsible_person|default:"-" }}</dd>
+    <dt>Chefe imediato</dt><dd>{{ item.immediate_supervisor|default:"-" }}</dd>
     <dt>Tombo 1</dt><dd>{{ item.tombo_1|default:"-" }}</dd>
     <dt>Tombo 2</dt><dd>{{ item.tombo_2|default:"-" }}</dd>
     <dt>Tombo 3</dt><dd>{{ item.tombo_3|default:"-" }}</dd>

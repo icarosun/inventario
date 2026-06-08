@@ -17,7 +17,7 @@
         <th>Nome</th>
         <th>Categoria</th>
         <th>Status</th>
-        <th>Local</th>
+        <th>Departamento</th>
         <th>Tombo 1</th>
       </tr>
     </thead>
@@ -27,7 +27,7 @@
           <td><a href="{% url 'inventory:item_detail' item.pk %}">{{ item.name }}</a></td>
           <td>{{ item.get_category_display }}</td>
           <td>{{ item.get_status_display }}</td>
-          <td>{{ item.location }}</td>
+          <td>{{ item.department|default:"-" }}</td>
           <td>{{ item.tombo_1 }}</td>
         </tr>
       {% empty %}

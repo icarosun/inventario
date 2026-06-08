@@ -1,0 +1,15 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}Excluir departamento - Inventario{% endblock %}
+
+{% block content %}
+  <h1>Excluir departamento</h1>
+  <p>Confirmar exclusao de {{ object.name }}?</p>
+  <form method="post">
+    {% csrf_token %}
+    <div class="actions">
+      <button class="danger" type="submit">Excluir</button>
+      <a class="button secondary" href="{% url 'inventory:department_list' %}">Cancelar</a>
+    </div>
+  </form>
+{% endblock %}

@@ -2,7 +2,13 @@ import json
 
 from django import forms
 
-from .models import InventoryImage, InventoryItem
+from .models import Department, InventoryImage, InventoryItem
+
+
+class DepartmentForm(forms.ModelForm):
+    class Meta:
+        model = Department
+        fields = ["name"]
 
 
 class InventoryItemForm(forms.ModelForm):
@@ -19,8 +25,9 @@ class InventoryItemForm(forms.ModelForm):
             "name",
             "category",
             "description",
-            "location",
+            "department",
             "responsible_person",
+            "immediate_supervisor",
             "status",
             "tombo_1",
             "tombo_2",

@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from .models import InventoryImage, InventoryItem
+from .models import Department, InventoryImage, InventoryItem
+
+
+@admin.register(Department)
+class DepartmentAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    search_fields = ("name",)
 
 
 class InventoryImageInline(admin.TabularInline):
@@ -15,17 +21,19 @@ class InventoryItemAdmin(admin.ModelAdmin):
         "name",
         "category",
         "status",
-        "location",
+        "department",
         "responsible_person",
+        "immediate_supervisor",
         "tombo_1",
         "updated_at",
     )
-    list_filter = ("category", "status")
+    list_filter = ("category", "status", "department")
     search_fields = (
         "name",
         "description",
-        "location",
+        "department__name",
         "responsible_person",
+        "immediate_supervisor",
         "tombo_1",
         "tombo_2",
         "tombo_3",

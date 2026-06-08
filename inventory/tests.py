@@ -5,7 +5,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from .models import InventoryImage, InventoryItem
+from .models import Department, InventoryImage, InventoryItem
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
@@ -40,6 +40,7 @@ class InventoryViewsTests(TestCase):
         self.assertIn(reverse("login"), response["Location"])
 
     def test_authenticated_user_can_create_item_with_tombos_and_specs(self):
+        department = Department.objects.create(name="Sala TI")
         self.client.login(username="usuario", password="senha-forte-123")
         response = self.client.post(
             reverse("inventory:item_create"),
@@ -47,8 +48,9 @@ class InventoryViewsTests(TestCase):
                 "name": "Desktop HP",
                 "category": InventoryItem.Category.TI,
                 "description": "Uso administrativo",
-                "location": "Sala TI",
+                "department": department.pk,
                 "responsible_person": "Maria",
+                "immediate_supervisor": "Joao",
                 "status": InventoryItem.Status.ACTIVE,
                 "tombo_1": "T1",
                 "tombo_2": "T2",
@@ -58,11 +60,36 @@ class InventoryViewsTests(TestCase):
         )
         item = InventoryItem.objects.get(name="Desktop HP")
         self.assertRedirects(response, reverse("inventory:item_detail", args=[item.pk]))
+        self.assertEqual(item.department, department)
         self.assertEqual(item.tombo_1, "T1")
         self.assertEqual(item.tombo_2, "T2")
         self.assertEqual(item.tombo_3, "T3")
+        self.assertEqual(item.immediate_supervisor, "Joao")
         self.assertEqual(item.specs["processador"], "i5")
         self.assertEqual(item.created_by, self.user)
+
+    def test_authenticated_user_can_manage_departments(self):
+        self.client.login(username="usuario", password="senha-forte-123")
+        create_response = self.client.post(
+            reverse("inventory:department_create"),
+            {"name": "Logistica"},
+        )
+        department = Department.objects.get(name="Logistica")
+        self.assertRedirects(create_response, reverse("inventory:department_list"))
+
+        update_response = self.client.post(
+            reverse("inventory:department_update", args=[department.pk]),
+            {"name": "Almoxarifado"},
+        )
+        self.assertRedirects(update_response, reverse("inventory:department_list"))
+        department.refresh_from_db()
+        self.assertEqual(department.name, "Almoxarifado")
+
+        delete_response = self.client.post(
+            reverse("inventory:department_delete", args=[department.pk]),
+        )
+        self.assertRedirects(delete_response, reverse("inventory:department_list"))
+        self.assertFalse(Department.objects.filter(pk=department.pk).exists())
 
     def test_non_staff_user_cannot_delete_item(self):
         item = self.create_item()
